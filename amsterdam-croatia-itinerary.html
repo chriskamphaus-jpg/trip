@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Amsterdam → Croatia 2026</title>
+<style>
+  :root{
+    --canal:#1f5f8b;       /* amsterdam canal blue */
+    --canal-deep:#12324a;
+    --orange:#e8731f;      /* dutch orange */
+    --sea:#0b6b78;         /* adriatic teal */
+    --sea-deep:#073f47;
+    --sea-light:#1aa0ad;
+    --sun:#e8a13a;
+    --sun-soft:#f4c87a;
+    --stone:#efe7d6;
+    --stone-deep:#ded2b9;
+    --ink:#16242a;
+    --paper:#f7f2e7;
+    --grid:#cdbfa3;
+    --travel:#7a6a8a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:"Helvetica Neue",Arial,sans-serif;
+    background:
+      radial-gradient(120% 75% at 15% -10%, #1f5f8b1f 0%, transparent 55%),
+      radial-gradient(120% 75% at 88% -8%, #0b6b781f 0%, transparent 55%),
+      var(--paper);
+    color:var(--ink);line-height:1.4;padding:32px 16px 64px;
+  }
+  .wrap{max-width:1200px;margin:0 auto}
+
+  /* HEADER */
+  header{
+    position:relative;border-radius:18px;overflow:hidden;color:var(--stone);
+    padding:34px 36px 30px;
+    background:linear-gradient(110deg,var(--canal-deep) 0%,var(--canal) 38%,var(--sea) 64%,var(--sea-light) 100%);
+    box-shadow:0 14px 40px -18px var(--canal-deep);
+  }
+  header::after{content:"";position:absolute;inset:0;
+    background:repeating-linear-gradient(115deg,#ffffff10 0 2px,transparent 2px 22px);
+    mix-blend-mode:overlay;pointer-events:none}
+  .eyebrow{font-size:12px;letter-spacing:.4em;text-transform:uppercase;color:var(--sun-soft);font-weight:700;margin-bottom:10px}
+  h1{font-family:Georgia,"Times New Roman",serif;font-weight:700;font-size:clamp(32px,5.5vw,56px);line-height:.98;letter-spacing:-.01em}
+  h1 .arr{color:var(--orange);font-style:italic;padding:0 .12em}
+  .subline{margin-top:14px;font-size:15px;max-width:720px;color:#eaf6f5cc}
+  .meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+  .chip{font-size:12.5px;font-weight:600;background:#ffffff1c;border:1px solid #ffffff33;padding:6px 12px;border-radius:999px;backdrop-filter:blur(2px)}
+  .chip b{color:var(--sun-soft)}
+
+  /* LEGEND */
+  .legend{display:flex;flex-wrap:wrap;gap:18px;align-items:center;margin:26px 4px 14px;font-size:13px;font-weight:600}
+  .legend .key{display:flex;align-items:center;gap:7px}
+  .sw{width:15px;height:15px;border-radius:4px;display:inline-block}
+  .sw.ams{background:var(--canal)}
+  .sw.cro{background:var(--sea)}
+  .sw.t{background:var(--sun)}
+  .sw.v{background:var(--travel)}
+  .legend .note{margin-left:auto;font-weight:500;color:#5b6a64;font-size:12px}
+
+  /* PHASE LABEL ROW */
+  .phase{display:grid;grid-template-columns:150px repeat(14,1fr);margin-top:4px}
+  .phase .sp{grid-column:1}
+  .phase .lab{
+    display:flex;align-items:center;gap:8px;font-weight:800;font-size:12px;
+    letter-spacing:.14em;text-transform:uppercase;padding:8px 12px;border-radius:8px 8px 0 0;color:#fff;
+  }
+  .phase .ams{grid-column:2 / span 14;background:linear-gradient(90deg,var(--canal),#2b7ab0)}
+  .phase .cro{grid-column:2 / span 14;background:linear-gradient(90deg,var(--sea),var(--sea-light))}
+  .phase .lab .dot{width:8px;height:8px;border-radius:50%;background:#fff8}
+
+  /* GANTT */
+  .gantt{background:#fffdf8;border:1px solid var(--stone-deep);border-radius:14px;overflow:hidden;box-shadow:0 10px 30px -22px #00000055;margin-bottom:8px}
+  .gantt-head{display:grid;grid-template-columns:150px repeat(14,1fr);background:var(--stone);border-bottom:2px solid var(--grid)}
+  .corner{padding:12px 14px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#7a6c50;font-weight:700;display:flex;align-items:flex-end}
+  .hr{padding:10px 0 8px;text-align:center;font-size:11px;color:#8a7c5e;font-weight:600;border-left:1px solid #00000010}
+  .row{display:grid;grid-template-columns:150px repeat(14,1fr);border-bottom:1px solid #00000010;position:relative;min-height:58px}
+  .row:nth-child(even){background:#f3ecdb}
+  .daycell{padding:8px 12px;border-right:2px solid var(--grid);display:flex;flex-direction:column;justify-content:center}
+  .daycell .dow{font-weight:800;font-size:14px}
+  .daycell .date{font-size:11px;color:#8a7c5e;font-weight:600}
+  .daycell .city{margin-top:3px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+  .city.ams{color:var(--canal)}
+  .city.cro-s{color:var(--sea)}
+  .city.cro-d{color:var(--sun)}
+  .track{position:relative;grid-column:2 / span 14}
+  .track::before{content:"";position:absolute;inset:0;
+    background:repeating-linear-gradient(90deg,transparent 0,transparent calc(100%/14 - 1px),#00000010 calc(100%/14 - 1px),#00000010 calc(100%/14));pointer-events:none}
+  .bar{position:absolute;top:50%;transform:translateY(-50%);height:38px;border-radius:8px;color:#fff;
+    font-size:11.5px;font-weight:700;line-height:1.12;padding:5px 9px 5px 11px;display:flex;flex-direction:column;justify-content:center;
+    overflow:hidden;box-shadow:0 4px 11px -3px #00000077, inset 3px 0 0 #ffffff66;border:1px solid #00000022}
+  .bar small{font-weight:500;opacity:.95;font-size:9.5px}
+  .bar.ams{background:linear-gradient(180deg,#3284bd,#15527c)}
+  .bar.cro{background:linear-gradient(180deg,#16b3c1,#08727f)}
+  .bar.t{background:linear-gradient(180deg,#f3c069,#e0901a);color:#3a2a08}
+  .bar.t small{opacity:.85}
+  .bar.v{background:linear-gradient(180deg,#9d8fac,#6b5b7e)}
+  .bar.tall{height:44px}
+
+  /* DETAIL CARDS */
+  .section-title{font-family:Georgia,serif;font-size:22px;margin:30px 2px 14px;display:flex;align-items:center;gap:10px}
+  .section-title .pin{width:10px;height:24px;border-radius:3px}
+  .pin.ams{background:var(--canal)}
+  .pin.cro{background:var(--sea)}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(255px,1fr));gap:16px}
+  .card{background:#fffdf8;border:1px solid var(--stone-deep);border-radius:14px;padding:18px 18px 16px;position:relative;overflow:hidden}
+  .card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--sea)}
+  .card.amsc::before{background:var(--canal)}
+  .card.tbd::before{background:var(--sun)}
+  .card .ct{font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:#9a8a66;font-weight:700;margin-bottom:3px}
+  .card h3{font-family:Georgia,serif;font-size:18px;margin-bottom:9px}
+  .card ul{list-style:none;font-size:13px}
+  .card li{padding:4px 0;padding-left:18px;position:relative;color:#324048}
+  .card li::before{content:"";position:absolute;left:0;top:9px;width:7px;height:7px;border-radius:50%;background:var(--sea-light)}
+  .card.amsc li::before{background:var(--canal)}
+  .card li.tbd::before{background:var(--sun)}
+  .card li b{color:var(--ink)}
+  .tag{display:inline-block;font-size:9.5px;font-weight:800;letter-spacing:.06em;padding:2px 7px;border-radius:5px;margin-left:6px;vertical-align:middle;text-transform:uppercase}
+  .tag.ok{background:#0b6b7818;color:var(--sea)}
+  .tag.no{background:#e8a13a26;color:#9c6612}
+
+  /* OPEN ITEMS */
+  .open{margin-top:28px;background:linear-gradient(135deg,#3a2f1f,#5a4a30);color:var(--stone);border-radius:16px;padding:24px 26px}
+  .open h2{font-family:Georgia,serif;font-size:21px;margin-bottom:4px}
+  .open .sub{font-size:13px;color:#e8dcc2aa;margin-bottom:16px}
+  .open-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+  .oi{background:#ffffff12;border:1px solid #ffffff1f;border-radius:10px;padding:13px 15px}
+  .oi .t{font-weight:800;font-size:13px;margin-bottom:4px;color:var(--sun-soft)}
+  .oi .where{font-size:9.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;opacity:.6}
+  .oi p{font-size:12.5px;color:#efe7d6cc;margin-top:3px}
+
+  /* HOTELS */
+  .hotels{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+  .hotel{background:#fffdf8;border:1px solid var(--stone-deep);border-radius:14px;overflow:hidden;position:relative}
+  .hotel .strip{padding:7px 16px;font-size:10.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#fff}
+  .hotel.ams .strip{background:linear-gradient(90deg,var(--canal),#2b7ab0)}
+  .hotel.split .strip{background:linear-gradient(90deg,var(--sea),var(--sea-light))}
+  .hotel.dub .strip{background:linear-gradient(90deg,var(--sun),#d98a1c)}
+  .hotel .body{padding:15px 18px 17px}
+  .hotel h3{font-family:Georgia,serif;font-size:19px;margin-bottom:2px;line-height:1.05}
+  .hotel .addr{font-size:11.5px;color:#6a7a72;margin-bottom:12px}
+  .hotel .nights{display:flex;align-items:center;gap:14px;margin-bottom:12px}
+  .hotel .nb{flex:1}
+  .hotel .nb .lab{font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:#9a8a66;font-weight:700}
+  .hotel .nb .d{font-size:15px;font-weight:800;margin-top:1px}
+  .hotel .nb .ti{font-size:10.5px;color:#7a8a82;font-weight:600}
+  .hotel .arrow{font-size:18px;color:var(--sun);font-weight:700}
+  .hotel dl{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:12px;margin-top:4px}
+  .hotel dt{color:#9a8a66;font-weight:700;letter-spacing:.02em}
+  .hotel dd{color:#2c3a40;font-weight:600;text-align:right}
+  .hotel .conf{margin-top:11px;padding-top:10px;border-top:1px dashed var(--stone-deep);font-size:11px;color:#6a7a72}
+  .hotel .conf b{color:var(--ink);font-family:"Courier New",monospace;letter-spacing:.04em}
+  .hotel.tbd .strip{background:linear-gradient(90deg,var(--sun),#d98a1c)}
+
+  /* LOGISTICS */
+  .logi{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-top:18px}
+  .lg{background:#fffdf8;border:1px solid var(--stone-deep);border-radius:12px;padding:14px 16px}
+  .lg .h{font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:#9a8a66;font-weight:700}
+  .lg .b{font-size:14px;font-weight:700;margin-top:3px}
+  .lg .s{font-size:11.5px;color:#5b6a64;margin-top:2px}
+
+  footer{margin-top:30px;text-align:center;font-size:11.5px;color:#8a7c5e}
+  footer b{color:var(--sea)}
+
+  @media(max-width:780px){
+    .gantt,.phase{overflow-x:auto}
+    .gantt-inner,.phase{min-width:740px}
+  }
+
+  /* Opaque rendering for PDF/print — replace translucent fills & blend modes */
+  @media print, (prefers-reduced-transparency: reduce){
+    body{background:#ececec}
+    header::after{display:none}
+    .chip{background:#1c4f72;border-color:#3f7197;backdrop-filter:none}
+    .subline{color:#dbeef0}
+    .open .sub{color:#d8cbb0}
+    .oi{background:#4a3c27;border-color:#6a5a3e}
+    .oi .where{opacity:1;color:#bba77f}
+    .oi p{color:#e9dfc8}
+    .hr{border-left-color:#c4b699}
+    .row{border-bottom-color:#d8cbaf}
+    .track::before{background:repeating-linear-gradient(90deg,transparent 0,transparent calc(100%/14 - 1px),#cdbfa3 calc(100%/14 - 1px),#cdbfa3 calc(100%/14))}
+    .bar{box-shadow:0 2px 4px #00000040;border-color:#00000033}
+    .row:nth-child(even){background:#f0f0f0}
+
+    /* Pagination — portrait, no section split */
+    @page{size:portrait;margin:12mm 12mm}
+    .wrap{max-width:none}
+    header,.gantt,.card,.hotel,.open{break-inside:avoid;page-break-inside:avoid}
+    .cards,.hotels,.open-grid,.logi{break-inside:avoid;page-break-inside:avoid}
+    .pagebreak{break-before:page;page-break-before:always;height:0}
+    .section-title{break-after:avoid;page-break-after:avoid}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">Summer 2026 · The Crew</div>
+    <h1>Amsterdam <span class="arr">→</span> Croatia</h1>
+    <div class="subline">Ten days, two countries, one continuous run. Canals, Van Gogh and Anne Frank in Amsterdam — then straight down to the Dalmatian coast for the Blue Cave, Diocletian's old stones, a Ston oyster detour, and King's Landing itself.</div>
+    <div class="meta">
+      <span class="chip"><b>Dates</b> Jul 24 – Aug 2, 2026</span>
+      <span class="chip"><b>Leg 1</b> Amsterdam · 3 nights</span>
+      <span class="chip"><b>Leg 2</b> Split → Dubrovnik · 6 nights</span>
+      <span class="chip"><b>Hinge</b> Mon 7/27 fly AMS → Split</span>
+    </div>
+  </header>
+
+  <div class="legend">
+    <span class="key"><span class="sw ams"></span>Amsterdam — booked</span>
+    <span class="key"><span class="sw cro"></span>Croatia — booked</span>
+    <span class="key"><span class="sw t"></span>Needs booking / TBD</span>
+    <span class="key"><span class="sw v"></span>Travel &amp; transfers</span>
+    <span class="note">Bars are scheduled blocks; un-timed items live in the day's detail card.</span>
+  </div>
+
+  <!-- PHASE 1 LABEL -->
+  <div class="phase"><div class="sp"></div><div class="lab ams"><span class="dot"></span>Leg 1 · Amsterdam</div></div>
+
+  <div class="gantt">
+   <div class="gantt-inner">
+    <div class="gantt-head">
+      <div class="corner">Day · 7a → 11p</div>
+      <div class="hr">7a</div><div class="hr">8</div><div class="hr">9</div><div class="hr">10</div>
+      <div class="hr">11</div><div class="hr">12p</div><div class="hr">1</div><div class="hr">2</div>
+      <div class="hr">3</div><div class="hr">4</div><div class="hr">5</div><div class="hr">6</div>
+      <div class="hr">7</div><div class="hr">8+</div>
+    </div>
+
+    <!-- FRI 7/24 -->
+    <div class="row">
+      <div class="daycell"><span class="dow">Fri</span><span class="date">Jul 24</span><span class="city ams">Amsterdam</span></div>
+      <div class="track">
+        <div class="bar v" style="left:0%;width:21.4%">Arrive &amp; settle<small>Check in</small></div>
+        <div class="bar ams" style="left:28.5%;width:14%">Canal cruise<small>11a · booked</small></div>
+        <div class="bar t" style="left:78.5%;width:21.5%">Dinner<small>TBD</small></div>
+      </div>
+    </div>
+
+    <!-- SAT 7/25 -->
+    <div class="row">
+      <div class="daycell"><span class="dow">Sat</span><span class="date">Jul 25</span><span class="city ams">Amsterdam</span></div>
+      <div class="track">
+        <div class="bar ams" style="left:21.4%;width:18%">Bike tour<small>10a · BYOB · Fishman booked</small></div>
+        <div class="bar ams" style="left:64.2%;width:11%">Van Gogh<small>4p</small></div>
+        <div class="bar ams tall" style="left:78.5%;width:21.5%">Night Kitchen<small>Dinner 6p · deposit down</small></div>
+      </div>
+    </div>
+
+    <!-- SUN 7/26 -->
+    <div class="row">
+      <div class="daycell"><span class="dow">Sun</span><span class="date">Jul 26</span><span class="city ams">Amsterdam</span></div>
+      <div class="track">
+        <div class="bar ams" style="left:21.4%;width:14%">Anne Frank House<small>10:30a · booked (Annie's 4am win)</small></div>
+        <div class="bar t" style="left:50%;width:30%">Open · explore the city<small>Group's call</small></div>
+      </div>
+    </div>
+   </div>
+  </div>
+
+  <!-- PHASE 2 LABEL -->
+  <div class="phase"><div class="sp"></div><div class="lab cro"><span class="dot"></span>Leg 2 · Split &amp; Dubrovnik</div></div>
+
+  <div class="gantt">
+   <div class="gantt-inner">
+    <div class="gantt-head">
+      <div class="corner">Day · 7a → 11p</div>
+      <div class="hr">7a</div><div class="hr">8</div><div class="hr">9</div><div class="hr">10</div>
+      <div class="hr">11</div><div class="hr">12p</div><div class="hr">1</div><div class="hr">2</div>
+      <div class="hr">3</div><div class="hr">4</div><div class="hr">5</div><div class="hr">6</div>
+      <div class="hr">7</div><div class="hr">8+</div>
+    </div>
+
+    <!-- MON 7/27 -->
+    <div class="row">
+      <div class="daycell"><span class="dow">Mon</span><span class="date">Jul 27</span><span class="city cro-s">AMS → Split</span></div>
+      <div class="track">
+        <div class="bar v" style="left:0%;width:50%">Fly Amsterdam → Split &amp; settle<small>Check in · Hotel Marvie (near port)</small></div>
+        <div class="bar t tall" style="left:78.5%;width:21.5%">Anniversary dinner<small>Dvor (proposed) · Annie &amp; Alex 🥂</small></div>
+      </div>
+    </div>
+
+    <!-- TUE 7/28 -->
+    <div class="row">
+      <div class="daycell"><span class="dow">Tue</span><span class="date">Jul 28</span><span class="city cro-s">Islands</span></div>
+      <div class="track">
+        <div class="bar cro" style="left:14.3%;width:78%">Blue Cave private boat — Split Sea Tours<small>Evala speedboat · Biševo · Vis lunch (Milna) · Hvar · swim stops</small></div>
+      </div>
+    </div>
+
+    <!-- WED 7/29 -->
+    <div class="row">
+      <div class="daycell"><span class="dow">Wed</span><span class="date">Jul 29</span><span class="city cro-s">Old Town</span></div>
+      <div class="track">
+        <div class="bar cro" style="left:21.4%;width:25%">Walking tour<small>History prof · 2.5 hr · from hotel 10a</small></div>
+        <div class="bar t" style="left:78.5%;width:21.5%">Dinner<small>Reservation needed</small></div>
+      </div>
+    </div>
+
+    <!-- THU 7/30 -->
+    <div class="row">
+      <div class="daycell"><span class="dow">Thu</span><span class="date">Jul 30</span><span class="city cro-s">Split → Dubrovnik</span></div>
+      <div class="track">
+        <div class="bar v" style="left:19.6%;width:55%">Private minibus transfer<small>Depart ~9:45a · lunch stop in Ston (oysters) → Dubrovnik</small></div>
+        <div class="bar t" style="left:78.5%;width:21.5%">Dinner<small>Reservation needed</small></div>
+      </div>
+    </div>
+
+    <!-- FRI 7/31 -->
+    <div class="row">
+      <div class="daycell"><span class="dow">Fri</span><span class="date">Jul 31</span><span class="city cro-d">Dubrovnik</span></div>
+      <div class="track">
+        <div class="bar t" style="left:35.7%;width:25%">King's Landing tour<small>Old City walls · mid-day (Fishman locking)</small></div>
+        <div class="bar cro tall" style="left:78.5%;width:21.5%">Dinner — confirmed<small>Konoba Dubrava</small></div>
+      </div>
+    </div>
+
+    <!-- SAT 8/1 -->
+    <div class="row">
+      <div class="daycell"><span class="dow">Sat</span><span class="date">Aug 1</span><span class="city cro-d">Dubrovnik</span></div>
+      <div class="track">
+        <div class="bar t" style="left:21.4%;width:50%">Open day — landmarks / beach<small>Group's pick · Defected Croatia floated</small></div>
+        <div class="bar t" style="left:78.5%;width:21.5%">Dinner<small>Reservation needed</small></div>
+      </div>
+    </div>
+
+    <!-- SUN 8/2 -->
+    <div class="row">
+      <div class="daycell"><span class="dow">Sun</span><span class="date">Aug 2</span><span class="city cro-d">Depart</span></div>
+      <div class="track">
+        <div class="bar v" style="left:0%;width:42.8%">Check out &amp; fly home<small>Wheels up</small></div>
+      </div>
+    </div>
+   </div>
+  </div>
+
+  <!-- AMSTERDAM CARDS -->
+  <div class="pageblock">
+  <div class="section-title"><span class="pin ams"></span>Amsterdam — the booked stuff</div>
+  <div class="cards">
+    <div class="card amsc">
+      <div class="ct">Fri 7/24</div>
+      <h3>Canals &amp; arrival</h3>
+      <ul>
+        <li>Canal cruise <b>11a</b> <span class="tag ok">Booked</span></li>
+        <li>Dinner still TBD</li>
+        <li class="tbd">Heineken Experience floated &amp; dropped — no votes, ~$30pp</li>
+      </ul>
+    </div>
+    <div class="card amsc">
+      <div class="ct">Sat 7/25</div>
+      <h3>Bike, art &amp; dinner</h3>
+      <ul>
+        <li>Bike tour <b>10a</b>, BYOB <span class="tag ok">Booked</span> — Fishman</li>
+        <li>Van Gogh Museum <b>4p</b> <span class="tag ok">Booked</span></li>
+        <li>Night Kitchen dinner <b>6p</b> <span class="tag ok">Deposit down</span></li>
+        <li>Out on the town after</li>
+      </ul>
+    </div>
+    <div class="card amsc">
+      <div class="ct">Sun 7/26</div>
+      <h3>Anne Frank &amp; open day</h3>
+      <ul>
+        <li>Anne Frank House <b>10:30a</b> <span class="tag ok">Booked</span></li>
+        <li>Tickets snagged at 4am — hard to get</li>
+        <li>Rest of day open</li>
+      </ul>
+    </div>
+  </div>
+  </div>
+
+  <!-- CROATIA CARDS -->
+  <div class="pageblock">
+  <div class="section-title"><span class="pin cro"></span>Croatia — the booked stuff</div>
+  <div class="cards">
+    <div class="card">
+      <div class="ct">Tue · the big one</div>
+      <h3>Blue Cave Private Boat</h3>
+      <ul>
+        <li><b>Split Sea Tours</b> — Evala <span class="tag ok">Booked</span></li>
+        <li>€2,200 all-in · €600 deposit down</li>
+        <li>Crew, fuel, VAT, drinks, lunch &amp; cave admission included</li>
+        <li><b>Fixed:</b> Blue Cave (Biševo) · Milna lunch (Vis) · Hvar</li>
+        <li><b>Flex:</b> Komiža, swim coves — decided on the day</li>
+        <li>Bad weather: reschedule or full refund same day</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="ct">Wed · Split</div>
+      <h3>History Walking Tour</h3>
+      <ul>
+        <li>Private, history professor <span class="tag ok">Booked</span></li>
+        <li>€20pp · ~2.5 hrs · grabs you from hotel 10a</li>
+        <li>Diocletian's Palace &amp; old town, customizable</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="ct">Thu · coast transfer</div>
+      <h3>Split → Dubrovnik via Ston</h3>
+      <ul>
+        <li>Private minibus, door to door <span class="tag ok">Booked</span></li>
+        <li>€700 · departs hotel ~9:45a</li>
+        <li>Lunch stop in <b>Ston</b> — oysters/seafood</li>
+        <li>Chosen over ferry: faster, flexible, all luggage</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="ct">Fri · Dubrovnik</div>
+      <h3>King's Landing &amp; dinner</h3>
+      <ul>
+        <li class="tbd">Old City walls tour <span class="tag no">Locking</span> — Fishman</li>
+        <li>Dinner <b>Konoba Dubrava</b> <span class="tag ok">Confirmed</span></li>
+        <li>Only dinner reservation currently set</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- HOTELS -->
+  </div>
+  <div class="pageblock">
+  <div class="section-title"><span class="pin ams"></span>Where you're staying</div>
+  <div class="hotels">
+
+    <div class="hotel ams">
+      <div class="strip">Amsterdam · Leg 1</div>
+      <div class="body">
+        <h3>Inntel Hotels Amsterdam Centre</h3>
+        <div class="addr">Nieuwezijds Kolk 19, 1012 PV Amsterdam</div>
+        <div class="nights">
+          <div class="nb"><div class="lab">Check in</div><div class="d">Fri, Jul 24</div><div class="ti">from 3:00 PM</div></div>
+          <div class="arrow">→</div>
+          <div class="nb"><div class="lab">Check out</div><div class="d">Mon, Jul 27</div><div class="ti">by 11:00 AM</div></div>
+        </div>
+        <dl>
+          <dt>Room</dt><dd>City Double · 1 King</dd>
+          <dt>Guests</dt><dd>2 adults</dd>
+          <dt>Nights</dt><dd>3</dd>
+          <dt>Total</dt><dd>$1,063.70</dd>
+        </dl>
+        <div class="conf">Expedia itinerary <b>72069870427914</b> · +31 20 530 1818</div>
+      </div>
+    </div>
+
+    <div class="hotel split">
+      <div class="strip">Split · Leg 2</div>
+      <div class="body">
+        <h3>Hotel Marvie</h3>
+        <div class="addr">Poljička ul. 5, 21000 Split, Croatia</div>
+        <div class="nights">
+          <div class="nb"><div class="lab">Check in</div><div class="d">Mon, Jul 27</div><div class="ti">arrival ~4:00 PM</div></div>
+          <div class="arrow">→</div>
+          <div class="nb"><div class="lab">Check out</div><div class="d">Thu, Jul 30</div><div class="ti">transfer day</div></div>
+        </div>
+        <dl>
+          <dt>Room</dt><dd>Superior Sea View · Balcony</dd>
+          <dt>Guest</dt><dd>Chris Kamphaus</dd>
+          <dt>Nights</dt><dd>3</dd>
+          <dt>Total</dt><dd>€1,038.20</dd>
+        </dl>
+        <div class="conf">Reservation <b>6GJXR8</b> · +385 21 379 600</div>
+      </div>
+    </div>
+
+    <div class="hotel dub">
+      <div class="strip">Dubrovnik · Leg 2</div>
+      <div class="body">
+        <h3>President Hotel 5★</h3>
+        <div class="addr">Valamar Collection · Iva Dulčića 142, 20000 Dubrovnik</div>
+        <div class="nights">
+          <div class="nb"><div class="lab">Check in</div><div class="d">Thu, Jul 30</div><div class="ti">via Ston transfer</div></div>
+          <div class="arrow">→</div>
+          <div class="nb"><div class="lab">Check out</div><div class="d">Sun, Aug 2</div><div class="ti">fly home</div></div>
+        </div>
+        <dl>
+          <dt>Guest</dt><dd>Chris Kamphaus</dd>
+          <dt>Nights</dt><dd>3</dd>
+          <dt>Deposit</dt><dd>€1,188.99 paid</dd>
+        </dl>
+        <div class="conf">Receipt <b>35-30-10</b> · +385 20 441 100</div>
+      </div>
+    </div>
+
+  </div>
+  </div>
+
+  <!-- OPEN ITEMS -->
+  <div class="open">
+    <h2>Still on the table</h2>
+    <div class="sub">Everything above is booked. These are the loose ends across both legs — with a group of 10, every dinner needs a reservation.</div>
+    <div class="open-grid">
+      <div class="oi"><div class="where">Amsterdam</div><div class="t">Fri dinner · 7/24</div><p>No spot picked yet. Group reservation floated for a party this size.</p></div>
+      <div class="oi"><div class="where">Croatia</div><div class="t">Anniversary dinner · Mon 7/27</div><p>Dvor proposed (waterfront, near hotel). Lauren coordinating with the restaurant.</p></div>
+      <div class="oi"><div class="where">Croatia</div><div class="t">Dinners · Wed, Thu, Sat</div><p>Three nights unbooked. Volunteers wanted — Lauren has one; Maks/Fishman pending.</p></div>
+      <div class="oi"><div class="where">Croatia</div><div class="t">King's Landing tour · Fri</div><p>Mid-day Old City walls tour — Fishman finalizing time &amp; provider.</p></div>
+      <div class="oi"><div class="where">Croatia</div><div class="t">Sat 8/1 in Dubrovnik</div><p>Fully open. Beach, landmarks, or Defected Croatia (link from Lauren).</p></div>
+    </div>
+  </div>
+
+  <!-- LOGISTICS -->
+  <div class="logi">
+    <div class="lg"><div class="h">Amsterdam stay</div><div class="b">3 nights</div><div class="s">Spa on site ($1/min)</div></div>
+    <div class="lg"><div class="h">Split stay</div><div class="b">Hotel Marvie</div><div class="s">Near the port · spa</div></div>
+    <div class="lg"><div class="h">Dubrovnik stay</div><div class="b">President 5★</div><div class="s">€1,188.99 deposit</div></div>
+    <div class="lg"><div class="h">Boat</div><div class="b">€2,200</div><div class="s">€600 deposit down</div></div>
+    <div class="lg"><div class="h">Coast transfer</div><div class="b">€700</div><div class="s">Minibus + Ston</div></div>
+    <div class="lg"><div class="h">Cost split</div><div class="b">Splitwise</div><div class="s">+ Venmo / Sheet</div></div>
+  </div>
+
+  <footer>
+    Distilled from the <b>Amsterdam July 2026</b> &amp; <b>Croatia Summer 2026</b> group chats · 10 days, ~10 people · Amsterdam Fri 7/24 → Croatia Sun 8/2.
+  </footer>
+
+</div>
+</body>
+</html>
